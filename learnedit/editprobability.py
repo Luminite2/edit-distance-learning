@@ -3,7 +3,7 @@ from collections import defaultdict
 from . import trie
 
 class EditProbability:
-  def __init__(self, alph_x, alph_y):
+  def __init__(self, alph_x, alph_y, initf=lambda x,y: 0.5):
     #two alphabets
     assert(type(alph_x) == trie.Trie)
     assert(type(alph_y) == trie.Trie)
@@ -13,13 +13,28 @@ class EditProbability:
     self.alph_y_rev = alph_y.reverse()
     #probability storage
     self.probs = defaultdict(lambda:0.0)
+    for x,y in self._product(alph_x,alph_y):
+      self.probs[x,y] = initf(x,y)
+
+  def __str__(self):
+    ret = '{\n'
+    for a,b in sorted(self.probs,key=lambda k: self.probs[k], reverse=True):
+      ret += '\t({},{}): {}\n'.format(a,b,self.probs[a,b])
+    ret += '}\n'
+    return ret
+
+  def _product(self,xs,ys):
+    for x,y in itertools.product(xs,ys):
+      if x == self.alph_x.epsilon and y == self.alph_y.epsilon:
+        continue
+      yield x,y
 
   def _forward(self, x, y, a_x, a_y, probs):
     ret = defaultdict(lambda:0.0)
     ret[0,0] = 1.0
     for i in range(len(x)+1):
       for j in range(len(y)+1):
-        for xi,yj in itertools.product(a_x.prefixesOf(x[i:]), a_y.prefixesOf(y[j:])):
+        for xi,yj in self._product(a_x.prefixesOf(x[i:]), a_y.prefixesOf(y[j:])):
           ret[i+len(xi),j+len(yj)] += probs[xi,yj]*ret[i,j]
     return ret
 
@@ -48,12 +63,11 @@ class EditProbability:
           accum[xi,yj] += self.probs[xi,yj] * alpha[i,j] * beta[i+len(xi),j+len(yj)] / beta[0,0]
     return accum
 
-
   def iterativeUpdate(self, data):
     #E-step
     gamma = defaultdict(lambda:0.0)
     for x,y in data:
-      gamma = _eStep(x,y,gamma)
+      gamma = self._eStep(x,y,gamma)
     #M-step
     N = 0.0
     for k in gamma:
@@ -61,4 +75,3 @@ class EditProbability:
     for k in gamma:
       gamma[k] /= N
     self.probs = gamma
-    pass
