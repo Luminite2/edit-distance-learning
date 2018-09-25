@@ -1,41 +1,46 @@
 import unittest
-from learnedit import editprobability
-from learnedit import trie
+from learnedit.editprobability import EditProbability
+from learnedit.trie import Trie
+from learnedit.alphabet import Alphabet
 
 class TestEditProbability(unittest.TestCase):
 
   def test_forward(self):
-    ax = trie.Trie()
-    ax.add('')
-    ax.add('a')
-    ay = trie.Trie()
-    ay.add('b')
-    ay.add('c')
-    ay.add('bc')
-    ay.add('')
-    ep = editprobability.EditProbability(ax,ay)
+    tx = Trie()
+    tx.add('')
+    tx.add('a')
+    ty = Trie()
+    ty.add('b')
+    ty.add('c')
+    ty.add('bc')
+    ty.add('')
+    ep = EditProbability(Alphabet(tx),Alphabet(ty))
     ep.probs['a',''] = 0.5
     ep.probs['','b'] = 0.4
     ep.probs['','c'] = 0.3
     ep.probs['a','b'] = 0.2
     ep.probs['','bc'] = 0.1
+    ep.probs['a', 'bc'] = 0.0
+    ep.probs['a','c'] = 0.0
     r = ep.forward('a','bc')
     self.assertAlmostEqual(r[1,2],0.34)
 
   def test_backward(self):
-    ax = trie.Trie()
-    ax.add('')
-    ax.add('a')
-    ay = trie.Trie()
-    ay.add('b')
-    ay.add('c')
-    ay.add('bc')
-    ay.add('')
-    ep = editprobability.EditProbability(ax,ay)
+    tx = Trie()
+    tx.add('')
+    tx.add('a')
+    ty = Trie()
+    ty.add('b')
+    ty.add('c')
+    ty.add('bc')
+    ty.add('')
+    ep = EditProbability(Alphabet(tx),Alphabet(ty))
     ep.probs['a',''] = 0.5
     ep.probs['','b'] = 0.4
     ep.probs['','c'] = 0.3
     ep.probs['a','b'] = 0.2
     ep.probs['','bc'] = 0.1
+    ep.probs['a', 'bc'] = 0.0
+    ep.probs['a','c'] = 0.0
     r = ep.backward('a','bc')
     self.assertAlmostEqual(r[0,0],0.34)

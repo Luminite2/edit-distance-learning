@@ -1,16 +1,17 @@
 import itertools
 from collections import defaultdict
-from . import trie
+#from . import trie
+from . import alphabet
 
 class EditProbability:
   def __init__(self, alph_x, alph_y, initf=lambda x,y: 0.5):
     #two alphabets
-    assert(type(alph_x) == trie.Trie)
-    assert(type(alph_y) == trie.Trie)
+    assert(type(alph_x) == alphabet.Alphabet)
+    assert(type(alph_y) == alphabet.Alphabet)
     self.alph_x = alph_x
-    self.alph_x_rev = alph_x.reverse()
+    self.alph_x_rev = alph_x.reversed()
     self.alph_y = alph_y
-    self.alph_y_rev = alph_y.reverse()
+    self.alph_y_rev = alph_y.reversed()
     #probability storage
     self.probs = defaultdict(lambda:0.0)
     for x,y in self._product(alph_x,alph_y):
@@ -39,14 +40,14 @@ class EditProbability:
     return ret
 
   def forward(self, x, y):
-    return self._forward(x, y, self.alph_x, self.alph_y, self.probs)
+    return self._forward(x, y, self.alph_x.forward(), self.alph_y.forward(), self.probs)
 
   def backward(self, x, y):
     x_r = x[::-1]
     y_r = y[::-1]
     probs_r = {(a[::-1],b[::-1]):v for (a,b),v in self.probs.items()}
     probs_r = defaultdict(lambda:0.0,probs_r)
-    ret_r = self._forward(x_r, y_r, self.alph_x_rev, self.alph_y_rev, probs_r)
+    ret_r = self._forward(x_r, y_r, self.alph_x.reversed(), self.alph_y.reversed(), probs_r)
     ret = type(ret_r)()
     for i,j in ret_r:
       ret[len(x)-i,len(y)-j] = ret_r[i,j]

@@ -86,7 +86,7 @@ class Trie:
     else:
       return False
 
-  def reverse(self):
+  def reversed(self):
     """Returns suffix trie (containing all entries, reversed).
     """
     ret = Trie(self.epsilon)

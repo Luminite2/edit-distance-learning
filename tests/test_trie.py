@@ -57,11 +57,11 @@ class TestTrie(unittest.TestCase):
     t.add('test2')
     self.assertCountEqual(list(t),['','test','test2'])
 
-  def test_reverse(self):
+  def test_reversed(self):
     t = trie.Trie()
     t.add('')
     t.add('abc')
     t.add('a')
     t.add('c')
-    tr = t.reverse()
+    tr = t.reversed()
     self.assertCountEqual(list(tr),['','cba','a','c'])
