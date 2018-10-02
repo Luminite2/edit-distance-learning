@@ -1,13 +1,17 @@
 import itertools
 from collections import defaultdict
 #from . import trie
-from . import alphabet
+#from . import alphabet
+#import alphabet
+from . import Alphabet
 
 class EditProbability:
   def __init__(self, alph_x, alph_y, initf=lambda x,y: 0.5):
     #two alphabets
-    assert(type(alph_x) == alphabet.Alphabet)
-    assert(type(alph_y) == alphabet.Alphabet)
+    #assert(type(alph_x) == alphabet.Alphabet)
+    #assert(type(alph_y) == alphabet.Alphabet)
+    assert(type(alph_x) == Alphabet)
+    assert(type(alph_y) == Alphabet)
     self.alph_x = alph_x
     self.alph_x_rev = alph_x.reversed()
     self.alph_y = alph_y
@@ -60,7 +64,7 @@ class EditProbability:
     alpha = self.forward(x, y)
     for i in range(len(x)+1):
       for j in range(len(y)+1):
-        for xi,yj in itertools.product(self.alph_x.prefixesOf(x[i:]), self.alph_y.prefixesOf(y[j:])):
+        for xi,yj in itertools.product(self.alph_x.forward().prefixesOf(x[i:]), self.alph_y.forward().prefixesOf(y[j:])):
           accum[xi,yj] += self.probs[xi,yj] * alpha[i,j] * beta[i+len(xi),j+len(yj)] / beta[0,0]
     return accum
 

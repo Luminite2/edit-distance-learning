@@ -1,7 +1,7 @@
 import unittest
-from learnedit.editprobability import EditProbability
-from learnedit.trie import Trie
-from learnedit.alphabet import Alphabet
+from learnedit import EditProbability
+from learnedit import Trie
+from learnedit import Alphabet
 
 class TestEditProbability(unittest.TestCase):
 

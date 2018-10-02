@@ -1,14 +1,17 @@
-from . import trie
+#from . import trie
+from . import Trie
+#import trie
 from gensim.models.phrases import Phrases, Phraser
 
 class Alphabet:
   def __init__(self, arg1):
-    if type(arg1) == trie.Trie:
+    #if type(arg1) == trie.Trie:
+    if type(arg1) == Trie:
       self.vocab = arg1
       self.vocab_reverse = arg1.reversed()
-      self.epsilon = self.vocab.epsilon
     else:
       self._data_init(arg1)
+    self.epsilon = self.vocab.epsilon
   def _data_init(self, words):
     phrases = Phrases([list(w.replace('_','')) for w in words])
     normalized_phrases = {k.decode('utf-8').replace('_',''):v for k,v in phrases.vocab.items()}
@@ -18,8 +21,12 @@ class Alphabet:
     #TODO: determine best parameter for controlling bigram vocabulary
     #TODO: allow for n-grams?
     all_phrases = l1_phrases + l2_phrases[:len(l1_phrases)]
-    self.vocab = trie.Trie()
-    self.vocab_reverse = trie.Trie()
+    #self.vocab = trie.Trie()
+    #self.vocab_reverse = trie.Trie()
+    self.vocab = Trie()
+    self.vocab_reverse = Trie()
+    self.vocab.add('') #optional?
+    self.vocab_reverse.add('')
     for p in all_phrases:
       self.vocab.add(p)
       self.vocab_reverse.add(p[::-1])
