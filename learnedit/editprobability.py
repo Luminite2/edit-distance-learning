@@ -6,10 +6,10 @@ from collections import defaultdict
 from . import Alphabet
 
 class EditProbability:
+  #TODO: allow init from data directly
   def __init__(self, alph_x, alph_y, initf=lambda x,y: 0.5):
+    import types
     #two alphabets
-    #assert(type(alph_x) == alphabet.Alphabet)
-    #assert(type(alph_y) == alphabet.Alphabet)
     assert(type(alph_x) == Alphabet)
     assert(type(alph_y) == Alphabet)
     self.alph_x = alph_x
@@ -19,7 +19,10 @@ class EditProbability:
     #probability storage
     self.probs = defaultdict(lambda:0.0)
     for x,y in self._product(alph_x,alph_y):
-      self.probs[x,y] = initf(x,y)
+      if type(initf) == types.FunctionType:
+        self.probs[x,y] = initf(x,y)
+      else:
+        self.probs[x,y] = initf[x,y]
 
   def __str__(self):
     ret = '{\n'
@@ -27,6 +30,24 @@ class EditProbability:
       ret += '\t({},{}): {}\n'.format(a,b,self.probs[a,b])
     ret += '}\n'
     return ret
+
+  def __repr__(self):
+    args = ''
+    ax = repr(self.alph_x)
+    ay = repr(self.alph_y)
+    init_dict = {}
+    for a,b in sorted(self.probs,key=lambda k: self.probs[k], reverse=True):
+      init_dict[a,b] = self.probs[a,b]
+    return 'EditProbability({},{},{})'.format(ax,ay,init_dict)
+
+  @staticmethod
+  def from_string(s):
+    return eval(s)
+
+  @staticmethod
+  def from_file(fname):
+    with open(fname, 'r', encoding='utf-8', errors='surrogateescape') as f:
+      return EditProbability.from_string(f.read())
 
   def _product(self,xs,ys):
     for x,y in itertools.product(xs,ys):
@@ -52,15 +73,15 @@ class EditProbability:
     probs_r = {(a[::-1],b[::-1]):v for (a,b),v in self.probs.items()}
     probs_r = defaultdict(lambda:0.0,probs_r)
     ret_r = self._forward(x_r, y_r, self.alph_x.reversed(), self.alph_y.reversed(), probs_r)
-    ret = type(ret_r)()
+    #ret = type(ret_r)()
+    ret = defaultdict(lambda:0.0)
     for i,j in ret_r:
       ret[len(x)-i,len(y)-j] = ret_r[i,j]
     return ret
 
   def _eStep(self, x, y, accum):
     beta = self.backward(x, y)
-    if beta[0,0] == 0.0:
-      return accum
+    if beta[0,0] == 0.0: return accum
     alpha = self.forward(x, y)
     for i in range(len(x)+1):
       for j in range(len(y)+1):
@@ -80,3 +101,14 @@ class EditProbability:
     for k in gamma:
       gamma[k] /= N
     self.probs = gamma
+
+  def score(self, x, y):
+    return self.forward(x,y)[len(x),len(y)]
+  
+  def save(self, fname):
+    with open(fname,'w',encoding='utf-8',errors='surrogateescape') as f:
+      f.write(repr(self))
+
+  def __iter__(self):
+    for a,b in self.probs:
+      yield ((a,b),self.probs[a,b])

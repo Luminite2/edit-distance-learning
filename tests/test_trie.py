@@ -65,3 +65,9 @@ class TestTrie(unittest.TestCase):
     t.add('c')
     tr = t.reversed()
     self.assertCountEqual(list(tr),['','cba','a','c'])
+
+  def test_iter(self):
+    t = Trie()
+    t.add('')
+    t.add('a')
+    self.assertCountEqual(t,['','a'])

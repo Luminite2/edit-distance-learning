@@ -17,17 +17,14 @@ class Trie:
     self.epsilon = epsilon
 
   def __iter__(self):
-    def entries():
-      stack = [(self.root, self.epsilon)]
-      
-      while stack:
-        node, string = stack.pop()
-        if node.final:
-          yield string
-        for char in node.children:
-          stack.append((node.children[char], string + char))
-
-    return entries()
+    stack = [(self.root, self.epsilon)]
+    
+    while stack:
+      node, string = stack.pop()
+      if node.final:
+        yield string
+      for char in node.children:
+        stack.append((node.children[char], string + char))
 
   def _traverse(self, string, create_missing=False):
     node = self.root
