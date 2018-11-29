@@ -21,7 +21,7 @@ class EditProbability:
     for x,y in self._product(alph_x,alph_y):
       if type(initf) == types.FunctionType:
         self.probs[x,y] = initf(x,y)
-      else:
+      elif (x,y) in initf:
         self.probs[x,y] = initf[x,y]
 
   def __str__(self):
