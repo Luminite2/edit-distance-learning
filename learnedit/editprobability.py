@@ -112,3 +112,46 @@ class EditProbability:
   def __iter__(self):
     for a,b in self.probs:
       yield ((a,b),self.probs[a,b])
+
+  def _greedy_tokenize(self, alph, word):
+    #at each position, find prefixes, sort by length, take longest (random among longest is fine for now)
+    #push to token list, advance marker by length
+    i = 0
+    toks = []
+    while i < len(word):
+      candidates = alph.forward().prefixesOf(word[i:])
+      assert len(candidates) > 0, 'Cannot greedily tokenize word with given alphabet: {}'.format(word)
+      c = sorted(candidates, key= lambda s: len(s))[-1]
+      toks.append(c)
+      i += len(c)
+    return toks
+
+  def transliterator_x2y(self):
+    #version 1: greedily find bigrams
+
+    x2y = {}
+    for x in self.alph_x.forward():
+      p_max = 0.0
+      y_max = None
+      for y in self.alph_y.forward():
+        if self.probs[x,y] >= p_max:
+          p_max = self.probs[x,y]
+          y_max = y
+      x2y[x] = y_max
+
+    return lambda word: ''.join([x2y[tok] for tok in self._greedy_tokenize(self.alph_x, word)])
+
+  def transliterator_y2x(self):
+    #version 1: greedily find bigrams
+
+    y2x = {}
+    for y in self.alph_y.forward():
+      p_max = 0.0
+      x_max = None
+      for x in self.alph_x.forward():
+        if self.probs[x,y] >= p_max:
+          p_max = self.probs[x,y]
+          x_max = x
+      y2x[y] = x_max
+
+    return lambda word: ''.join([y2x[tok] for tok in self._greedy_tokenize(self.alph_y, word)])

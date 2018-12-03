@@ -84,15 +84,36 @@ class TestEditProbability(unittest.TestCase):
     ty.add('bc')
     ty.add('')
     ep = EditProbability(Alphabet(tx),Alphabet(ty))
-    ep.probs['a',''] = 0.5
+    ep.probs['a',''] = 0.2
     ep.probs['','b'] = 0.4
     ep.probs['','c'] = 0.3
-    ep.probs['a','b'] = 0.2
+    ep.probs['a','b'] = 0.5
     ep.probs['','bc'] = 0.1
     ep.probs['a', 'bc'] = 0.0
     ep.probs['a','c'] = 0.0
-    #TODO: test translit aa -> ?
-    #self.assertAlmostEqual(ep.score('a','bc'),0.34)
+    x2y = ep.transliterator_x2y()
+    self.assertEqual(x2y('aa'), 'bb')
+
+  def test_translit_yx(self):
+    tx = Trie()
+    tx.add('')
+    tx.add('a')
+    ty = Trie()
+    ty.add('b')
+    ty.add('c')
+    ty.add('bc')
+    ty.add('')
+    ep = EditProbability(Alphabet(tx),Alphabet(ty))
+    ep.probs['a',''] = 0.2
+    ep.probs['','b'] = 0.4
+    ep.probs['','c'] = 0.3
+    ep.probs['a','b'] = 0.5
+    ep.probs['','bc'] = 0.0
+    ep.probs['a', 'bc'] = 0.1
+    ep.probs['a','c'] = 0.0
+    y2x = ep.transliterator_y2x()
+    self.assertEqual(y2x('bc'), 'a')
+
 
   def test_from_string(self):
     ep1 = EditProbability(Alphabet('','a'),Alphabet('','b'))
