@@ -113,18 +113,31 @@ class EditProbability:
     for a,b in self.probs:
       yield ((a,b),self.probs[a,b])
 
-  def _greedy_tokenize(self, alph, word):
-    #at each position, find prefixes, sort by length, take longest (random among longest is fine for now)
-    #push to token list, advance marker by length
-    i = 0
-    toks = []
-    while i < len(word):
-      candidates = alph.forward().prefixesOf(word[i:])
-      assert len(candidates) > 0, 'Cannot greedily tokenize word with given alphabet: {}'.format(word)
-      c = sorted(candidates, key= lambda s: len(s))[-1]
-      toks.append(c)
-      i += len(c)
-    return toks
+  def _transliterator(self, alph, x2y, probs):
+    import math
+    def transliterate(word):
+      N = len(word)
+      dp_table = [-float('inf') for _ in range(N+1)]
+      dp_table[0] = 0.0
+      bp_table = ['' for _ in range(N+1)]
+      for i in range(1,N+1):
+        candidate_xs = [rev_ngram[::-1] for rev_ngram in alph.reversed().prefixesOf(word[:i][::-1])]
+        for cx in candidate_xs:
+          cy = x2y[cx]
+          if probs(cx,cy) > 0.0:
+            log_prob = math.log(probs(cx,cy)) + dp_table[i-len(cx)]
+            if log_prob >= dp_table[i]:
+              dp_table[i] = log_prob
+              bp_table[i] = cx
+      result = ''
+      i = N
+      while i > 0:
+        result = x2y[bp_table[i]] + result
+        i -= len(bp_table[i])
+      return result
+
+    return transliterate
+
 
   def transliterator_x2y(self):
     #version 1: greedily find bigrams
@@ -139,10 +152,9 @@ class EditProbability:
           y_max = y
       x2y[x] = y_max
 
-    return lambda word: ''.join([x2y[tok] for tok in self._greedy_tokenize(self.alph_x, word)])
+    return self._transliterator(self.alph_x, x2y, lambda x,y: self.probs[x,y])
 
   def transliterator_y2x(self):
-    #version 1: greedily find bigrams
 
     y2x = {}
     for y in self.alph_y.forward():
@@ -154,4 +166,4 @@ class EditProbability:
           x_max = x
       y2x[y] = x_max
 
-    return lambda word: ''.join([y2x[tok] for tok in self._greedy_tokenize(self.alph_y, word)])
+    return self._transliterator(self.alph_y, y2x, lambda y,x: self.probs[x,y])
