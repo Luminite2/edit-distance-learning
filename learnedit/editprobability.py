@@ -119,10 +119,14 @@ class EditProbability:
       N = len(word)
       dp_table = [-float('inf') for _ in range(N+1)]
       dp_table[0] = 0.0
-      bp_table = ['' for _ in range(N+1)]
+      #bp_table = ['' for _ in range(N+1)]
+      bp_table = ['']
+      bp_table.extend(list(word))
       for i in range(1,N+1):
         candidate_xs = [rev_ngram[::-1] for rev_ngram in alph.reversed().prefixesOf(word[:i][::-1])]
         for cx in candidate_xs:
+          if len(cx) == 0:
+            continue
           cy = x2y[cx]
           if probs(cx,cy) > 0.0:
             log_prob = math.log(probs(cx,cy)) + dp_table[i-len(cx)]
@@ -133,7 +137,7 @@ class EditProbability:
       i = N
       while i > 0:
         result = x2y[bp_table[i]] + result
-        i -= len(bp_table[i])
+        i -= max(1,len(bp_table[i]))
       return result
 
     return transliterate
@@ -142,10 +146,10 @@ class EditProbability:
   def transliterator_x2y(self):
     #version 1: greedily find bigrams
 
-    x2y = {}
+    x2y = defaultdict(lambda: self.alph_y.epsilon)
     for x in self.alph_x.forward():
       p_max = 0.0
-      y_max = None
+      y_max = x
       for y in self.alph_y.forward():
         if self.probs[x,y] >= p_max:
           p_max = self.probs[x,y]
@@ -156,10 +160,10 @@ class EditProbability:
 
   def transliterator_y2x(self):
 
-    y2x = {}
+    y2x = defaultdict(lambda: self.alph_x.epsilon)
     for y in self.alph_y.forward():
       p_max = 0.0
-      x_max = None
+      x_max = y
       for x in self.alph_x.forward():
         if self.probs[x,y] >= p_max:
           p_max = self.probs[x,y]

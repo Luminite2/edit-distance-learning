@@ -81,6 +81,13 @@ class TestEditProbability(unittest.TestCase):
     x2y = ep.transliterator_x2y()
     self.assertEqual(x2y('aa'), 'bb')
 
+  def test_translit_xy_missing(self):
+    ep = EditProbability(Alphabet('','a','aa'),Alphabet('','b','c','bc'), lambda x,y: 0.0)
+    ep.probs['a','b'] = 0.1
+    ep.probs['aa','bc'] = 0.5
+    x2y = ep.transliterator_x2y()
+    self.assertEqual(x2y('a_a'), 'bb')
+
   def test_translit_yx(self):
     ep = EditProbability(Alphabet('','a','aa'),Alphabet('','b','c','bc'), lambda x,y: 0.0)
     ep.probs['a','c'] = 0.5
@@ -88,6 +95,14 @@ class TestEditProbability(unittest.TestCase):
     ep.probs['','bc'] = 0.1
     y2x = ep.transliterator_y2x()
     self.assertEqual(y2x('bc'), 'aa')
+
+  def test_translit_yx_missing(self):
+    ep = EditProbability(Alphabet('','a','aa'),Alphabet('','b','c','bc'), lambda x,y: 0.0)
+    ep.probs['a','c'] = 0.5
+    ep.probs['a','b'] = 0.5
+    ep.probs['','bc'] = 0.1
+    y2x = ep.transliterator_y2x()
+    self.assertEqual(y2x('b_c'), 'aa')
 
   def test_from_string(self):
     ep1 = EditProbability(Alphabet('','a'),Alphabet('','b'))
