@@ -71,3 +71,9 @@ class TestTrie(unittest.TestCase):
     t.add('')
     t.add('a')
     self.assertCountEqual(t,['','a'])
+
+  def test_len(self):
+    t = Trie()
+    t.add('')
+    t.add('a')
+    self.assertEqual(len(t),2)

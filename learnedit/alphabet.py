@@ -25,6 +25,9 @@ class Alphabet:
   def __repr__(self):
     return 'Alphabet({})'.format(','.join([repr(a) for a in sorted(self)]))
 
+  def __len__(self):
+    return len(self.vocab)
+
   @staticmethod
   def from_string(s):
     return eval(s)

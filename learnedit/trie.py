@@ -26,6 +26,9 @@ class Trie:
       for char in node.children:
         stack.append((node.children[char], string + char))
 
+  def __len__(self):
+    return len([_ for _ in self])
+
   def _traverse(self, string, create_missing=False):
     node = self.root
     finals = set()

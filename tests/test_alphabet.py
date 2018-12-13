@@ -33,3 +33,7 @@ class TestAlphabet(unittest.TestCase):
   def test_iter(self):
     a = Alphabet('a','b')
     self.assertCountEqual(a,['a','b'])
+
+  def test_len(self):
+    a = Alphabet('a','b')
+    self.assertEqual(len(a),2)
