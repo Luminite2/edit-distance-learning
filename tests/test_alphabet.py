@@ -21,6 +21,11 @@ class TestAlphabet(unittest.TestCase):
     a = Alphabet('a','')
     self.assertCountEqual(a,['','a'])
 
+  def test_init_limit(self):
+    a = Alphabet(['abcdefg'], unigram_limit=2)
+    lens = [len(e) for e in a]
+    self.assertCountEqual(lens,[0,1,1,2,2])
+
   def test_repr(self):
     a = Alphabet('a','b','\'',',','')
     self.assertEqual(repr(a),'Alphabet(\'\',\"\'\",\',\',\'a\',\'b\')')
