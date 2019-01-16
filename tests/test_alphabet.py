@@ -4,8 +4,8 @@ from learnedit import Trie
 
 class TestAlphabet(unittest.TestCase):
   def test_init(self):
-    a = Alphabet(['ab'])
-    self.assertCountEqual(a,['','a','b','ab'])
+    a = Alphabet(['a_'])
+    self.assertCountEqual(a,['','a','_','a_'])
 
   def test_init_reverse(self):
     a = Alphabet(['ab'])

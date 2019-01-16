@@ -33,8 +33,13 @@ class Alphabet:
     return eval(s)
 
   def _data_init(self, words):
-    phrases = Phrases([list(w.replace('_','')) for w in words])
-    normalized_phrases = {k.decode('utf-8').replace('_',''):v for k,v in phrases.vocab.items()}
+    phrases = Phrases([list(w) for w in words])
+    def fix_key(key):
+      if len(key) == 1:
+        return key
+      elif len(key) == 3:
+        return key[0:1] + key[2:3]
+    normalized_phrases = {fix_key(k.decode('utf-8')):v for k,v in phrases.vocab.items()}
     l1_phrases = [k for k in normalized_phrases if len(k) == 1]
     l2_phrase_scores = {k:v for k,v in normalized_phrases.items() if len(k) > 1}
     l2_phrases = sorted(l2_phrase_scores, key=lambda k:l2_phrase_scores[k], reverse=True)
