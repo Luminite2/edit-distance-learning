@@ -36,8 +36,9 @@ class Alphabet:
     #phrases = Phrases([list(w) for w in words])
     #normalized_phrases = {k.decode('utf-8'):v for k,v in phrases.vocab.items()}
     _,vocab_counts,_ = Phrases.learn_vocab(words,2000,delimiter=b'')
-    unigram_scores = {k.decode('utf-8'):v for k,v in vocab_counts.items() if len(k) == 1}
-    ngram_scores = {k.decode('utf-8'):v for k,v in vocab_counts.items() if len(k) > 1}
+    vocab_counts = {k.decode('utf-8'):v for k,v in vocab_counts.items()}
+    unigram_scores = {k:v for k,v in vocab_counts.items() if len(k) == 1}
+    ngram_scores = {k:v for k,v in vocab_counts.items() if len(k) > 1}
     unigrams = sorted(unigram_scores, key=lambda k:unigram_scores[k], reverse=True)
     ngrams = sorted(ngram_scores, key=lambda k:ngram_scores[k], reverse=True)
     unigram_limit = len(unigrams)
