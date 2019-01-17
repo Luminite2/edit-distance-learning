@@ -42,3 +42,7 @@ class TestAlphabet(unittest.TestCase):
   def test_len(self):
     a = Alphabet('a','b')
     self.assertEqual(len(a),2)
+
+  def test_unique(self):
+    a = Alphabet('a','b','a')
+    self.assertCountEqual(a,['a','b'])
