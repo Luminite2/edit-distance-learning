@@ -42,7 +42,7 @@ class Alphabet:
     unigrams = sorted(unigram_scores, key=lambda k:unigram_scores[k], reverse=True)
     ngrams = sorted(ngram_scores, key=lambda k:ngram_scores[k], reverse=True)
     unigram_limit = len(unigrams)
-    if 'unigram_limit' in kwargs:
+    if 'unigram_limit' in kwargs and kwargs['unigram_limit'] is not None:
       unigram_limit = kwargs['unigram_limit']
     #TODO: determine best parameter for controlling bigram vocabulary
     #TODO: allow for n-grams?

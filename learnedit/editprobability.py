@@ -49,6 +49,38 @@ class EditProbability:
     with open(fname, 'r', encoding='utf-8', errors='surrogateescape') as f:
       return EditProbability.from_string(f.read())
 
+  @staticmethod
+  def _read_data(fname, max_lines, unigram_limit):
+    data = []
+    with open(fname, 'r') as f:
+      for l in f.readlines():
+        words = l.split()
+        if len(words) != 2:
+          #print('Bad line: \"{}\"'.format(l.rstrip()))
+          continue
+        data.append((words[0],words[1]))
+        if max_lines and len(data) >= max_lines:
+          break
+    alph_x = Alphabet([x for x,y in data], unigram_limit=unigram_limit)
+    alph_y = Alphabet([y for x,y in data], unigram_limit=unigram_limit)
+    return data, alph_x, alph_y
+
+  @staticmethod
+  def from_data(fname, max_lines=None, unigram_limit=None, iterations=3, init_func=None):
+    data, ax, ay = EditProbability._read_data(fname, max_lines, unigram_limit)
+    def init_less_insert_delete(x,y):
+      if x == '' or y == '':
+        return 0.01
+      else:
+        return 0.5
+    if not init_func:
+      init_func = init_less_insert_delete
+    e = EditProbability(ax, ay, init_func)
+    for i in range(iterations):
+      e.iterative_update(data)
+
+    return e
+
   def _product(self,xs,ys):
     for x,y in itertools.product(xs,ys):
       if x == self.alph_x.epsilon and y == self.alph_y.epsilon:
@@ -89,7 +121,7 @@ class EditProbability:
           accum[xi,yj] += self.probs[xi,yj] * alpha[i,j] * beta[i+len(xi),j+len(yj)] / beta[0,0]
     return accum
 
-  def iterativeUpdate(self, data):
+  def iterative_update(self, data):
     #E-step
     gamma = defaultdict(lambda:0.0)
     for x,y in data:

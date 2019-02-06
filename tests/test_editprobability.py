@@ -109,3 +109,14 @@ class TestEditProbability(unittest.TestCase):
     ep1.probs['a',''] = 0.5
     ep2 = EditProbability.from_string(repr(ep1))
     self.assertCountEqual(ep1,ep2)
+
+  def test_from_data(self):
+    ep1 = EditProbability.from_data('tests/files/ep_from_data.txt',max_lines=3,unigram_limit=3,iterations=3, init_func=lambda x,y: 0.5)
+    data = [('a','x'),('ab','xy'), ('abc', 'xyz')]
+    ax = Alphabet([x for x,y in data])
+    ay = Alphabet([y for x,y in data])
+    ep2 = EditProbability(ax,ay,lambda x,y: 0.5)
+    for i in range(3):
+      ep2.iterative_update(data)
+    self.assertCountEqual(ep1,ep2)
+
